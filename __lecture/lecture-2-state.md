@@ -59,6 +59,8 @@ Hooks are way of "hooking into" React's abilities, like managing state.
 # 🙅‍♀️ Mutating state
 
 This snippet won't throw an error, but it also won't work:
+Because useState includes the instructions to render any changes to the value; without the function you can change the value but your
+changes won't appear until you give it a function:
 
 ```jsx
 let [value, setValue] = React.useState(null);
@@ -185,7 +187,7 @@ function SomeComponent() {
 
 ---
 
-The user clicks the checkbox
+The user clicks the checkbox: toggle function
 
 ```jsx live=true inline=true
 function SomeComponent() {
@@ -221,14 +223,29 @@ What happens when you want to share state between components?
 const App = () => {
   return (
     <>
-      <SearchInput />
+      <SearchInput
+        searchTerm={seartchTerm}
+        setSearchTerm={setSearchTerm} />
       <SearchResults />
     </>
   )
 }
 
-const SearchInput = () => {
+const SearchInput = ({ searchTerm, setSearchTerm }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+
+  return (
+    <input
+      type="text"
+      value={searchTerm}
+      onChange={(ev) => {
+        setSearchTerm(ev.target.value);
+      }}
+    />
+  );
+}
+
+const Search
 
   return (
     <input
@@ -259,9 +276,8 @@ Lift state up in the following examples
 ---
 
 ```jsx live=true
-const Counter = () => {
-  const [count, setCount] = React.useState(0);
-
+const Counter = ({count, setCount}) => {
+  
   return (
     <>
       <button onClick={() => setCount(count + 1)}>
@@ -272,11 +288,14 @@ const Counter = () => {
 };
 
 const App = () => {
+  const [count, setCount] = React.useState(0);
   return (
     <>
-      The current count is: ???
+      The current count is: {count}
 
-      <Counter />
+      <Counter
+        value={count}
+        setCount={setCount} />
     </>
   )
 }
@@ -287,8 +306,7 @@ render(<App />)
 ---
 
 ```jsx live=true
-const FavouriteFood = () => {
-  const [food, setFood] = React.useState('');
+const FavouriteFood = ({ food, setFood }) => {
 
   return (
     <>
@@ -297,7 +315,7 @@ const FavouriteFood = () => {
           type="radio"
           name="food"
           value="pizza"
-          checked={food === 'pizza'}
+          checked={food === 'pizza'} // this is a dud line; returns a boolean but that isn't used for anything.
           onChange={() => setFood('pizza')}
         />
         Pizza
@@ -307,7 +325,7 @@ const FavouriteFood = () => {
           type="radio"
           name="food"
           value="broccoli"
-          checked={food === 'broccoli'}
+          checked={food === 'broccoli'} // this is a dud line; returns a boolean but that isn't used for anything.
           onChange={() => setFood('broccoli')}
         />
         Broccoli
@@ -317,11 +335,14 @@ const FavouriteFood = () => {
 };
 
 const App = () => {
+  const [food, setFood] = React.useState('');
   return (
     <>
-      My favourite food is: ???
+      My favourite food is: {food}
       <br /><br />
-      <FavouriteFood />
+      <FavouriteFood 
+        food={food}
+        setFood={setFood}/>
     </>
   )
 }
